@@ -3,7 +3,7 @@ import grpc
 from fastapi import FastAPI
 from jose import jwt
 
-from codegen import users_pb2_grpc, users_pb2
+from .codegen import users_pb2_grpc, users_pb2
 
 app = FastAPI()
 

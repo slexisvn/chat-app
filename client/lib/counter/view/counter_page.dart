@@ -1,7 +1,9 @@
+import 'package:client/codegen/users.pbgrpc.dart';
 import 'package:client/counter/counter.dart';
 import 'package:client/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:grpc/grpc.dart';
 
 class CounterPage extends StatelessWidget {
   const CounterPage({super.key});
@@ -21,6 +23,15 @@ class CounterView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final channel = ClientChannel(
+      'localhost',
+      port: 24351,
+      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+    );
+    final stub = UserServiceClient(
+      channel,
+      options: CallOptions(timeout: const Duration(seconds: 30)),
+    );
     return Scaffold(
       appBar: AppBar(title: Text(l10n.counterAppBarTitle)),
       body: const Center(child: CounterText()),
@@ -34,7 +45,12 @@ class CounterView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           FloatingActionButton(
-            onPressed: () => context.read<CounterCubit>().decrement(),
+            onPressed: () async {
+              context.read<CounterCubit>().decrement();
+              print(
+                await stub.getUser(GetUserRequest(username: 'john')),
+              );
+            },
             child: const Icon(Icons.remove),
           ),
         ],
